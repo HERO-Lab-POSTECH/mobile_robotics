@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>ex_robot1_gazebo</name>
+  <version>0.0.1</version>
+  <description>
+    Lab 4 Gazebo package for the ex_robot1 example manipulator.
+    Provides the Gazebo world file and the launch file that spawns the
+    URDF model from ex_robot1_description into Gazebo for dynamic
+    simulation. Reproduces Lab 4 slide pages 12, 13 and 32.
+  </description>
+
+  <maintainer email="cite700x@postech.ac.kr">CITE700X Mobile Robotics</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>gazebo_plugins</depend>
+  <depend>gazebo_ros</depend>
+  <depend>xacro</depend>
+  <depend>urdf</depend>
+  <depend>ex_robot1_description</depend>
+</package>
