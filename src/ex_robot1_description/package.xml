@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>ex_robot1_description</name>
+  <version>0.0.1</version>
+  <description>
+    Lab 4 description package: URDF model and RViz visualization of the
+    ex_robot1 example manipulator. Students fill in the TODO blocks of
+    urdf/ex_robot1.urdf to build a 1-DoF (pre-class) and then a 2-DoF
+    (in-class) manipulator following the Lab 4 slides.
+  </description>
+  <maintainer email="cite700x@postech.ac.kr">CITE700X Mobile Robotics</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+  <exec_depend>rviz</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>urdf_tutorial</exec_depend>
+</package>
