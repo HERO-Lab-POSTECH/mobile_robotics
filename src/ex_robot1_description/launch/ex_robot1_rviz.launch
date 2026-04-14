@@ -1,24 +1,16 @@
-<!--
-  Lab 4 : launches the ex_robot1 manipulator in RViz with a GUI
-  slider for the joint states.
-
-  Note: when RViz opens, set Global Options -> Fixed Frame to "world"
-  (the default "base_link" causes a transform error because the URDF
-  root link is "world").
--->
 <launch>
     <arg name="rvizconfig" default="$(find urdf_tutorial)/rviz/urdf.rviz" />
-    <arg name="gui" default="true" />
 
+    <!-- Load URDF to parameter server -->
     <param name="robot_description"
         command="$(find xacro)/xacro '$(find ex_robot1_description)/urdf/ex_robot1.urdf'" />
 
-    <!-- Combine joint values -->
+    <!-- Publish joint states as TF transforms (for RViz visualization) -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-    <!-- Show in RViz -->
+    <!-- RViz : set Fixed Frame to 'world' after launch -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
 
-    <!-- Send joint values via GUI sliders -->
+    <!-- GUI sliders to control joint angles interactively -->
     <node name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
 </launch>

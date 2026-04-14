@@ -1,17 +1,25 @@
 <?xml version="1.0"?>
 <!--
-  Lab 4: 1-DoF manipulator URDF (ex_robot1)
+  ex_robot1 : 1-DoF manipulator URDF
 
-  Pre-class TODOs 1-4 are completed:
-    - world link + fixed joint (slide p8)
-    - joint1 + link1 with inertial (slide p8)
-    - gazebo_ros_control plugin (slide p24)
-    - transmission tran1 (slide p25)
+  Structure:
+    world (fixed) -- base_link (1x1x1 box, 12kg)
+                       └── joint1 (continuous, y-axis) -- link1 (0.3x0.3x3, 3kg)
 
-  In-Class Assignment (TODO 5-6): extend to 2-DoF by adding joint2 + link2 + tran2.
+  Includes:
+    - gazebo_ros_control plugin  : Gazebo <-> ros_control bridge
+    - transmission tran1         : motor1 <-> joint1 mapping
+
+  In-Class Assignment:
+    Extend to 2-DoF by adding joint2 + link2 + tran2.
 -->
 <robot name="ex_robot1">
 
+    <!-- ============================================================ -->
+    <!-- base_link : 1x1x1 box (12 kg), fixed to the world           -->
+    <!--   Every Gazebo link with <visual> MUST have <inertial>,      -->
+    <!--   otherwise Gazebo silently drops the link from the model.   -->
+    <!-- ============================================================ -->
     <link name="base_link">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -28,13 +36,16 @@
         <inertial>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <mass value="12"/>
+            <!-- Solid box inertia: I = (1/12) * m * (a^2 + b^2) -->
             <inertia ixx="2.0" ixy="0.0" ixz="0.0"
                      iyy="2.0" iyz="0.0"
                      izz="2.0"/>
         </inertial>
     </link>
 
-    <!-- world link + fixed joint (slide p8) -->
+    <!-- ============================================================ -->
+    <!-- world link : URDF root. Fixed joint lifts base_link by 0.5m -->
+    <!-- ============================================================ -->
     <link name="world"/>
 
     <joint name="fixed" type="fixed">
@@ -43,8 +54,11 @@
         <child link="base_link"/>
     </joint>
 
-
-    <!-- joint1 + link1 (slide p8) -->
+    <!-- ============================================================ -->
+    <!-- joint1 + link1 : first revolute joint (continuous, y-axis)   -->
+    <!--   origin at top of base_link (z=0.5)                        -->
+    <!--   link1 center is offset by z=1.5 (half of its 3m height)   -->
+    <!-- ============================================================ -->
     <joint name="joint1" type="continuous">
         <parent link="base_link"/>
         <child link="link1"/>
@@ -69,14 +83,19 @@
         <inertial>
             <origin xyz="0 0 1.5" rpy="0 0 0"/>
             <mass value="3"/>
+            <!-- ixx = iyy = (1/12)*3*(0.3^2+3^2) = 2.2725 -->
+            <!-- izz       = (1/12)*3*(0.3^2+0.3^2) = 0.045 -->
             <inertia ixx="2.2725" ixy="0.0" ixz="0.0"
                      iyy="2.2725" iyz="0.0"
                      izz="0.045"/>
         </inertial>
     </link>
 
-
-    <!-- gazebo_ros_control plugin (slide p24) -->
+    <!-- ============================================================ -->
+    <!-- gazebo_ros_control plugin                                    -->
+    <!--   Bridges Gazebo physics and ros_control framework.          -->
+    <!--   All controller topics are created under /ex_robot1/.       -->
+    <!-- ============================================================ -->
     <gazebo>
         <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
             <robotNamespace>/ex_robot1</robotNamespace>
@@ -84,8 +103,11 @@
         </plugin>
     </gazebo>
 
-
-    <!-- transmission tran1 (slide p25) -->
+    <!-- ============================================================ -->
+    <!-- transmission tran1 : maps motor1 -> joint1                   -->
+    <!--   EffortJointInterface : PID controller outputs torque       -->
+    <!--   mechanicalReduction=1 : no gear ratio (direct drive)       -->
+    <!-- ============================================================ -->
     <transmission name="tran1">
         <type>transmission_interface/SimpleTransmission</type>
         <joint name="joint1">
@@ -96,6 +118,5 @@
             <mechanicalReduction>1</mechanicalReduction>
         </actuator>
     </transmission>
-
 
 </robot>
