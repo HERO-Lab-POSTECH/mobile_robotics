@@ -6,7 +6,7 @@
     Lab 4 Gazebo package for the ex_robot1 example manipulator.
     Provides the Gazebo world file and the launch file that spawns the
     URDF model from ex_robot1_description into Gazebo for dynamic
-    simulation. Reproduces Lab 4 slide pages 12, 13 and 32.
+    simulation.
   </description>
 
   <maintainer email="cite700x@postech.ac.kr">CITE700X Mobile Robotics</maintainer>

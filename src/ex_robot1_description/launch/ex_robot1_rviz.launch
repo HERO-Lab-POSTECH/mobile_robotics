@@ -1,5 +1,5 @@
 <!--
-  Lab 4 : launches the ex_robot1 2-DoF manipulator in RViz with a GUI
+  Lab 4 : launches the ex_robot1 manipulator in RViz with a GUI
   slider for the joint states.
 
   Note: when RViz opens, set Global Options -> Fixed Frame to "world"
@@ -11,7 +11,7 @@
     <arg name="gui" default="true" />
 
     <param name="robot_description"
-        command="$(find xacro)/xacro --inorder '$(find ex_robot1_description)/urdf/ex_robot1.urdf'" />
+        command="$(find xacro)/xacro '$(find ex_robot1_description)/urdf/ex_robot1.urdf'" />
 
     <!-- Combine joint values -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />

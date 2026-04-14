@@ -1,15 +1,14 @@
 <?xml version="1.0"?>
 <!--
-  Lab 4 Complete Solution: 2-DoF manipulator URDF (ex_robot1)
+  Lab 4: 1-DoF manipulator URDF (ex_robot1)
 
-  This URDF implements a 2-DoF revolute-joint manipulator with:
-    - base_link : 1x1x1 box (12 kg), fixed to the world
-    - link1     : 0.3x0.3x3 box (3 kg), connected via joint1 (y-axis)
-    - link2     : 0.3x0.3x3 box (3 kg), connected via joint2 (y-axis)
-    - gazebo_ros_control plugin for dynamic simulation
-    - Transmission interfaces (tran1, tran2) for effort control
+  Pre-class TODOs 1-4 are completed:
+    - world link + fixed joint (slide p8)
+    - joint1 + link1 with inertial (slide p8)
+    - gazebo_ros_control plugin (slide p24)
+    - transmission tran1 (slide p25)
 
-  Section markers (TODO 1~6) are kept for reference to the Lab 4 slides.
+  In-Class Assignment (TODO 5-6): extend to 2-DoF by adding joint2 + link2 + tran2.
 -->
 <robot name="ex_robot1">
 
@@ -35,9 +34,7 @@
         </inertial>
     </link>
 
-    <!-- ============================================================ -->
-    <!-- TODO 1 : world link + fixed joint     (slide p8, left panel)  -->
-    <!-- ============================================================ -->
+    <!-- world link + fixed joint (slide p8) -->
     <link name="world"/>
 
     <joint name="fixed" type="fixed">
@@ -47,9 +44,7 @@
     </joint>
 
 
-    <!-- ============================================================ -->
-    <!-- TODO 2 : joint1 + link1               (slide p8, right panel) -->
-    <!-- ============================================================ -->
+    <!-- joint1 + link1 (slide p8) -->
     <joint name="joint1" type="continuous">
         <parent link="base_link"/>
         <child link="link1"/>
@@ -81,43 +76,7 @@
     </link>
 
 
-    <!-- ============================================================ -->
-    <!-- TODO 5 : joint2 + link2  (in-class, 2-DoF extension, p37)    -->
-    <!-- ============================================================ -->
-    <joint name="joint2" type="continuous">
-        <parent link="link1"/>
-        <child link="link2"/>
-        <origin xyz="0 0 3" rpy="0 0 0"/>
-        <axis xyz="0 1 0"/>
-        <dynamics damping="0.7"/>
-    </joint>
-
-    <link name="link2">
-        <visual>
-            <origin xyz="0 0 1.5" rpy="0 0 0"/>
-            <geometry>
-                <box size="0.3 0.3 3"/>
-            </geometry>
-        </visual>
-        <collision>
-            <origin xyz="0 0 1.5" rpy="0 0 0"/>
-            <geometry>
-                <box size="0.3 0.3 3"/>
-            </geometry>
-        </collision>
-        <inertial>
-            <origin xyz="0 0 1.5" rpy="0 0 0"/>
-            <mass value="3"/>
-            <inertia ixx="2.2725" ixy="0.0" ixz="0.0"
-                     iyy="2.2725" iyz="0.0"
-                     izz="0.045"/>
-        </inertial>
-    </link>
-
-
-    <!-- ============================================================ -->
-    <!-- TODO 3 : ros_control gazebo plugin    (slide p24)             -->
-    <!-- ============================================================ -->
+    <!-- gazebo_ros_control plugin (slide p24) -->
     <gazebo>
         <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
             <robotNamespace>/ex_robot1</robotNamespace>
@@ -126,30 +85,13 @@
     </gazebo>
 
 
-    <!-- ============================================================ -->
-    <!-- TODO 4 : transmission tran1           (slide p25)             -->
-    <!-- ============================================================ -->
+    <!-- transmission tran1 (slide p25) -->
     <transmission name="tran1">
         <type>transmission_interface/SimpleTransmission</type>
         <joint name="joint1">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         </joint>
         <actuator name="motor1">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-            <mechanicalReduction>1</mechanicalReduction>
-        </actuator>
-    </transmission>
-
-
-    <!-- ============================================================ -->
-    <!-- TODO 6 : transmission tran2  (in-class, for joint2)           -->
-    <!-- ============================================================ -->
-    <transmission name="tran2">
-        <type>transmission_interface/SimpleTransmission</type>
-        <joint name="joint2">
-            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-        </joint>
-        <actuator name="motor2">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
             <mechanicalReduction>1</mechanicalReduction>
         </actuator>

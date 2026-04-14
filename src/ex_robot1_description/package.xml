@@ -3,9 +3,9 @@
   <name>ex_robot1_description</name>
   <version>0.0.1</version>
   <description>
-    Lab 4 complete solution: URDF model and RViz visualization of the
-    ex_robot1 2-DoF manipulator. Includes the gazebo_ros_control plugin
-    and transmission interfaces for dynamic simulation in Gazebo.
+    Lab 4 description package: URDF model and RViz visualization of the
+    ex_robot1 example manipulator. Pre-class TODOs (1-4) are completed
+    for 1-DoF. In-class assignment extends to 2-DoF.
   </description>
   <maintainer email="cite700x@postech.ac.kr">CITE700X Mobile Robotics</maintainer>
   <license>BSD</license>
