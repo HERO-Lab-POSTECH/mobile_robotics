@@ -1,16 +1,37 @@
+<!--
+  Launches the ex_robot1 manipulator in RViz for kinematic visualization.
+
+  Nodes:
+    robot_state_publisher  : converts /joint_states into TF frames
+    rviz                   : 3D visualization tool
+    joint_state_publisher  : GUI sliders to set joint angles manually
+
+  Usage:
+    roslaunch ex_robot1_description ex_robot1_rviz.launch
+
+  Note:
+    After RViz opens, set Global Options -> Fixed Frame to "world".
+    The default "base_link" causes a TF error because the URDF root
+    link is "world", not "base_link".
+-->
 <launch>
+    <!-- Default RViz config from urdf_tutorial package -->
     <arg name="rvizconfig" default="$(find urdf_tutorial)/rviz/urdf.rviz" />
 
-    <!-- Load URDF to parameter server -->
+    <!-- Load URDF into /robot_description parameter.
+         xacro parses the file (resolves macros if any) and outputs raw XML. -->
     <param name="robot_description"
         command="$(find xacro)/xacro '$(find ex_robot1_description)/urdf/ex_robot1.urdf'" />
 
-    <!-- Publish joint states as TF transforms (for RViz visualization) -->
+    <!-- robot_state_publisher reads /joint_states and broadcasts TF
+         transforms for each link, so RViz can render the robot pose. -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-    <!-- RViz : set Fixed Frame to 'world' after launch -->
+    <!-- RViz 3D viewer. required="true" means the launch file exits
+         when the RViz window is closed. -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
 
-    <!-- GUI sliders to control joint angles interactively -->
+    <!-- joint_state_publisher_gui provides interactive sliders that
+         publish /joint_states, letting you move joints without Gazebo. -->
     <node name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
 </launch>

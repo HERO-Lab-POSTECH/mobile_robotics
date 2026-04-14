@@ -1,25 +1,22 @@
 <?xml version="1.0"?>
 <!--
-  ex_robot1 : 1-DoF manipulator URDF
+  ex_robot1 : 1-DoF revolute-joint manipulator
 
-  Structure:
-    world (fixed) -- base_link (1x1x1 box, 12kg)
-                       └── joint1 (continuous, y-axis) -- link1 (0.3x0.3x3, 3kg)
-
-  Includes:
-    - gazebo_ros_control plugin  : Gazebo <-> ros_control bridge
-    - transmission tran1         : motor1 <-> joint1 mapping
-
-  In-Class Assignment:
-    Extend to 2-DoF by adding joint2 + link2 + tran2.
+  Robot structure:
+    world (fixed) ─ base_link (1×1×1 box, 12 kg)
+                      └── joint1 (continuous, y-axis) ─ link1 (0.3×0.3×3, 3 kg)
 -->
 <robot name="ex_robot1">
 
-    <!-- ============================================================ -->
-    <!-- base_link : 1x1x1 box (12 kg), fixed to the world           -->
-    <!--   Every Gazebo link with <visual> MUST have <inertial>,      -->
-    <!--   otherwise Gazebo silently drops the link from the model.   -->
-    <!-- ============================================================ -->
+    <!-- ================================================================ -->
+    <!-- base_link                                                        -->
+    <!--   The base of the manipulator, fixed to the world.               -->
+    <!--   <visual>    : what you see in RViz / Gazebo                    -->
+    <!--   <collision> : shape used for physics collision detection       -->
+    <!--   <inertial>  : mass and rotational inertia for dynamics         -->
+    <!--     * Gazebo silently removes any link without <inertial>.       -->
+    <!--     * Solid-box formula: Ixx = (1/12)*m*(b²+c²), etc.           -->
+    <!-- ================================================================ -->
     <link name="base_link">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -36,16 +33,19 @@
         <inertial>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <mass value="12"/>
-            <!-- Solid box inertia: I = (1/12) * m * (a^2 + b^2) -->
+            <!-- 1×1×1 box, 12 kg : ixx=iyy=izz = (1/12)*12*(1²+1²) = 2.0 -->
             <inertia ixx="2.0" ixy="0.0" ixz="0.0"
                      iyy="2.0" iyz="0.0"
                      izz="2.0"/>
         </inertial>
     </link>
 
-    <!-- ============================================================ -->
-    <!-- world link : URDF root. Fixed joint lifts base_link by 0.5m -->
-    <!-- ============================================================ -->
+    <!-- ================================================================ -->
+    <!-- world link + fixed joint                                         -->
+    <!--   "world" is an empty link that serves as the URDF root frame.   -->
+    <!--   The fixed joint lifts base_link 0.5 m above the ground so     -->
+    <!--   that the bottom of the 1 m tall box sits on z = 0.             -->
+    <!-- ================================================================ -->
     <link name="world"/>
 
     <joint name="fixed" type="fixed">
@@ -54,11 +54,16 @@
         <child link="base_link"/>
     </joint>
 
-    <!-- ============================================================ -->
-    <!-- joint1 + link1 : first revolute joint (continuous, y-axis)   -->
-    <!--   origin at top of base_link (z=0.5)                        -->
-    <!--   link1 center is offset by z=1.5 (half of its 3m height)   -->
-    <!-- ============================================================ -->
+    <!-- ================================================================ -->
+    <!-- joint1 (continuous) + link1                                      -->
+    <!--   joint1 sits on top of base_link (z = 0.5 from base center).   -->
+    <!--   "continuous" = unlimited rotation (no joint limits).           -->
+    <!--   axis y = rotation around the y-axis.                          -->
+    <!--   damping = viscous friction coefficient (Nm·s/rad).            -->
+    <!--                                                                  -->
+    <!--   link1 visual/collision origin z = 1.5 so that the 3 m tall    -->
+    <!--   box is centered along its own length above the joint.         -->
+    <!-- ================================================================ -->
     <joint name="joint1" type="continuous">
         <parent link="base_link"/>
         <child link="link1"/>
@@ -83,19 +88,26 @@
         <inertial>
             <origin xyz="0 0 1.5" rpy="0 0 0"/>
             <mass value="3"/>
-            <!-- ixx = iyy = (1/12)*3*(0.3^2+3^2) = 2.2725 -->
-            <!-- izz       = (1/12)*3*(0.3^2+0.3^2) = 0.045 -->
+            <!-- 0.3×0.3×3 box, 3 kg -->
+            <!-- ixx = iyy = (1/12)*3*(0.3²+3²) = 2.2725 -->
+            <!-- izz       = (1/12)*3*(0.3²+0.3²) = 0.045 -->
             <inertia ixx="2.2725" ixy="0.0" ixz="0.0"
                      iyy="2.2725" iyz="0.0"
                      izz="0.045"/>
         </inertial>
     </link>
 
-    <!-- ============================================================ -->
-    <!-- gazebo_ros_control plugin                                    -->
-    <!--   Bridges Gazebo physics and ros_control framework.          -->
-    <!--   All controller topics are created under /ex_robot1/.       -->
-    <!-- ============================================================ -->
+    <!-- ================================================================ -->
+    <!-- gazebo_ros_control plugin                                        -->
+    <!--   This plugin bridges Gazebo's physics engine with the           -->
+    <!--   ros_control framework. Without it, ros_control cannot          -->
+    <!--   read joint states or apply effort (torque) to joints.          -->
+    <!--                                                                  -->
+    <!--   robotNamespace : all controller topics appear under            -->
+    <!--     /ex_robot1/  (e.g. /ex_robot1/joint1_position_controller/)   -->
+    <!--   robotSimType   : default hardware simulation interface that    -->
+    <!--     reads position/velocity and writes effort per joint.         -->
+    <!-- ================================================================ -->
     <gazebo>
         <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
             <robotNamespace>/ex_robot1</robotNamespace>
@@ -103,11 +115,13 @@
         </plugin>
     </gazebo>
 
-    <!-- ============================================================ -->
-    <!-- transmission tran1 : maps motor1 -> joint1                   -->
-    <!--   EffortJointInterface : PID controller outputs torque       -->
-    <!--   mechanicalReduction=1 : no gear ratio (direct drive)       -->
-    <!-- ============================================================ -->
+    <!-- ================================================================ -->
+    <!-- transmission tran1 : motor1 → joint1                             -->
+    <!--   Defines how an actuator (motor) drives a joint.                -->
+    <!--   SimpleTransmission = one motor drives one joint (1:1).         -->
+    <!--   EffortJointInterface = the PID controller outputs torque.      -->
+    <!--   mechanicalReduction = gear ratio (1 = direct drive).           -->
+    <!-- ================================================================ -->
     <transmission name="tran1">
         <type>transmission_interface/SimpleTransmission</type>
         <joint name="joint1">
@@ -118,5 +132,24 @@
             <mechanicalReduction>1</mechanicalReduction>
         </actuator>
     </transmission>
+
+    <!-- ================================================================ -->
+    <!-- In-Class Assignment : extend to 2-DoF                            -->
+    <!--                                                                  -->
+    <!-- Hints:                                                           -->
+    <!--   1. Add joint2 (continuous, y-axis) + link2 below link1.        -->
+    <!--      - joint2 parent = link1, child = link2                      -->
+    <!--      - joint2 origin: top of link1 (think about link1's height)  -->
+    <!--      - link2 can reuse the same geometry and inertia as link1.   -->
+    <!--                                                                  -->
+    <!--   2. Add transmission tran2 for joint2.                          -->
+    <!--      - Same structure as tran1, with renamed joint and motor.    -->
+    <!--                                                                  -->
+    <!--   3. Update ex_robot1_control.yaml :                             -->
+    <!--      - Add joint2_position_controller (same PID structure).      -->
+    <!--                                                                  -->
+    <!--   4. Update ex_robot1_control.launch :                           -->
+    <!--      - Add joint2_position_controller to the spawner args.       -->
+    <!-- ================================================================ -->
 
 </robot>

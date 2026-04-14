@@ -3,18 +3,19 @@
   <name>ex_robot1_description</name>
   <version>0.0.1</version>
   <description>
-    Lab 4 description package: URDF model and RViz visualization of the
-    ex_robot1 example manipulator. Pre-class TODOs (1-4) are completed
-    for 1-DoF. In-class assignment extends to 2-DoF.
+    URDF model and RViz visualization for the ex_robot1 manipulator.
+    Contains the robot description (urdf/) and a launch file (launch/)
+    that opens RViz with interactive joint sliders.
   </description>
   <maintainer email="cite700x@postech.ac.kr">CITE700X Mobile Robotics</maintainer>
   <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <exec_depend>robot_state_publisher</exec_depend>
-  <exec_depend>joint_state_publisher_gui</exec_depend>
-  <exec_depend>rviz</exec_depend>
-  <exec_depend>xacro</exec_depend>
-  <exec_depend>urdf_tutorial</exec_depend>
+  <!-- Runtime dependencies (only needed when running, not when building) -->
+  <exec_depend>robot_state_publisher</exec_depend>   <!-- /joint_states -> TF -->
+  <exec_depend>joint_state_publisher_gui</exec_depend> <!-- GUI sliders for joints -->
+  <exec_depend>rviz</exec_depend>                     <!-- 3D visualization -->
+  <exec_depend>xacro</exec_depend>                    <!-- URDF macro processor -->
+  <exec_depend>urdf_tutorial</exec_depend>            <!-- default RViz config -->
 </package>

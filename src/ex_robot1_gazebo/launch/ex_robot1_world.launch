@@ -1,14 +1,34 @@
+<!--
+  Launches Gazebo and spawns the ex_robot1 URDF for dynamic simulation.
+
+  What this does:
+    1. Starts Gazebo with a custom world (ground plane + sun + camera)
+    2. Loads the URDF into the ROS parameter server
+    3. Spawns the robot model into the Gazebo physics engine
+
+  Usage:
+    roslaunch ex_robot1_gazebo ex_robot1_world.launch
+
+  After this, the robot is in Gazebo but has NO controller yet.
+  Joints are free and the arm will drop under gravity.
+  Start ex_robot1_control.launch in a second terminal to enable PID control.
+-->
 <launch>
-    <!-- Start Gazebo with custom world (ground plane + sun + camera) -->
+    <!-- Start Gazebo with a custom world file.
+         empty_world.launch handles gzserver + gzclient startup. -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(find ex_robot1_gazebo)/world/ex_robot1.world"/>
     </include>
 
-    <!-- Load URDF to parameter server -->
+    <!-- Load the URDF XML into the /robot_description parameter.
+         This is needed by robot_state_publisher and other tools. -->
     <param name="robot_description"
         command="$(find xacro)/xacro '$(find ex_robot1_description)/urdf/ex_robot1.urdf'" />
 
-    <!-- Spawn the URDF model into Gazebo -->
+    <!-- Spawn the robot into Gazebo.
+         -param robot_description : read URDF from the parameter server
+         -urdf                    : input format is URDF (not SDF)
+         -model ex_robot1         : name of the model inside Gazebo -->
     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
         args="-param robot_description -urdf -model ex_robot1" />
 </launch>

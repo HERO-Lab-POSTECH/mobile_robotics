@@ -1,16 +1,21 @@
 <?xml version="1.0" ?>
+<!-- Gazebo world file (SDF format).
+     Defines the simulation environment: ground, lighting, and camera. -->
 <sdf version="1.4">
   <world name="default">
 
+    <!-- Flat ground plane -->
     <include>
       <uri>model://ground_plane</uri>
     </include>
 
+    <!-- Directional light source (sunlight) -->
     <include>
       <uri>model://sun</uri>
     </include>
 
-    <!-- Camera position for viewing the manipulator -->
+    <!-- Initial camera position.
+         Angled to give a good view of the tall manipulator. -->
     <gui fullscreen='0'>
       <camera name='user_camera'>
         <pose>4.927360 -4.376610 3.740080 0.000000 0.275643 2.356190</pose>
