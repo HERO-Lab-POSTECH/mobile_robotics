@@ -1,18 +1,15 @@
 <?xml version="1.0"?>
 <!--
-  Lab 4 worksheet : 2-DoF manipulator URDF (ex_robot1)
+  Lab 4 Complete Solution: 2-DoF manipulator URDF (ex_robot1)
 
-  Open the Lab 4 slides and fill in the TODO blocks below.
+  This URDF implements a 2-DoF revolute-joint manipulator with:
+    - base_link : 1x1x1 box (12 kg), fixed to the world
+    - link1     : 0.3x0.3x3 box (3 kg), connected via joint1 (y-axis)
+    - link2     : 0.3x0.3x3 box (3 kg), connected via joint2 (y-axis)
+    - gazebo_ros_control plugin for dynamic simulation
+    - Transmission interfaces (tran1, tran2) for effort control
 
-  Pre-class TODOs (Section 4.2 ~ 4.4):
-    TODO 1 : world link + fixed joint        (slide p8, left panel)
-    TODO 2 : joint1 + link1                  (slide p8, right panel)
-    TODO 3 : ros_control gazebo plugin       (slide p24)
-    TODO 4 : transmission tran1              (slide p25)
-
-  In-Class Assignment (slide p37):
-    TODO 5 : joint2 + link2                  (extend manipulator to 2-DoF)
-    TODO 6 : transmission tran2              (for joint2)
+  Section markers (TODO 1~6) are kept for reference to the Lab 4 slides.
 -->
 <robot name="ex_robot1">
 
@@ -38,91 +35,125 @@
         </inertial>
     </link>
 
-
     <!-- ============================================================ -->
     <!-- TODO 1 : world link + fixed joint     (slide p8, left panel)  -->
-    <!--                                                                -->
-    <!-- Hint:                                                          -->
-    <!--   - Define an empty link named "world".                       -->
-    <!--   - Define a fixed joint with parent="world", child="base_link". -->
-    <!--   - Lift base_link by half its height (origin xyz="0 0 0.5"). -->
     <!-- ============================================================ -->
+    <link name="world"/>
 
+    <joint name="fixed" type="fixed">
+        <origin xyz="0 0 0.5" rpy="0 0 0"/>
+        <parent link="world"/>
+        <child link="base_link"/>
+    </joint>
 
 
     <!-- ============================================================ -->
     <!-- TODO 2 : joint1 + link1               (slide p8, right panel) -->
-    <!--                                                                -->
-    <!-- Hint:                                                          -->
-    <!--   - joint1 type = "continuous" (rotates around y axis).       -->
-    <!--   - parent: base_link, child: link1                           -->
-    <!--   - joint1 origin xyz="0 0 0.5" (top of base_link).           -->
-    <!--   - axis xyz="0 1 0", dynamics damping="0.7".                 -->
-    <!--                                                                -->
-    <!--   - link1 is a tall box, size="0.3 0.3 3".                    -->
-    <!--   - visual / collision / inertial origin xyz="0 0 1.5"        -->
-    <!--     so the box is centered along its own length.              -->
-    <!--   - mass = 3.                                                  -->
-    <!--   - Solid box inertia: I = (1/12) * m * (a^2 + b^2)           -->
-    <!--       ixx = iyy = (1/12) * 3 * (0.3^2 + 3.0^2) = 2.2725       -->
-    <!--       izz       = (1/12) * 3 * (0.3^2 + 0.3^2) = 0.045        -->
-    <!--                                                                -->
-    <!--   IMPORTANT: Gazebo silently REMOVES any link without an      -->
-    <!--   <inertial> block, so do not forget it.                      -->
     <!-- ============================================================ -->
+    <joint name="joint1" type="continuous">
+        <parent link="base_link"/>
+        <child link="link1"/>
+        <origin xyz="0 0 0.5" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.7"/>
+    </joint>
 
+    <link name="link1">
+        <visual>
+            <origin xyz="0 0 1.5" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.3 0.3 3"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 1.5" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.3 0.3 3"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz="0 0 1.5" rpy="0 0 0"/>
+            <mass value="3"/>
+            <inertia ixx="2.2725" ixy="0.0" ixz="0.0"
+                     iyy="2.2725" iyz="0.0"
+                     izz="0.045"/>
+        </inertial>
+    </link>
+
+
+    <!-- ============================================================ -->
+    <!-- TODO 5 : joint2 + link2  (in-class, 2-DoF extension, p37)    -->
+    <!-- ============================================================ -->
+    <joint name="joint2" type="continuous">
+        <parent link="link1"/>
+        <child link="link2"/>
+        <origin xyz="0 0 3" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.7"/>
+    </joint>
+
+    <link name="link2">
+        <visual>
+            <origin xyz="0 0 1.5" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.3 0.3 3"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 1.5" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.3 0.3 3"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz="0 0 1.5" rpy="0 0 0"/>
+            <mass value="3"/>
+            <inertia ixx="2.2725" ixy="0.0" ixz="0.0"
+                     iyy="2.2725" iyz="0.0"
+                     izz="0.045"/>
+        </inertial>
+    </link>
 
 
     <!-- ============================================================ -->
     <!-- TODO 3 : ros_control gazebo plugin    (slide p24)             -->
-    <!--                                                                -->
-    <!-- Hint:                                                          -->
-    <!--   - Add a <gazebo> ... </gazebo> block.                       -->
-    <!--   - Inside, add a <plugin> with                               -->
-    <!--       name     = "gazebo_ros_control"                         -->
-    <!--       filename = "libgazebo_ros_control.so"                   -->
-    <!--   - Use <robotNamespace>/ex_robot1</robotNamespace>           -->
-    <!--     so all controllers live under the /ex_robot1 namespace.   -->
     <!-- ============================================================ -->
-
+    <gazebo>
+        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+            <robotNamespace>/ex_robot1</robotNamespace>
+            <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+        </plugin>
+    </gazebo>
 
 
     <!-- ============================================================ -->
     <!-- TODO 4 : transmission tran1           (slide p25)             -->
-    <!--                                                                -->
-    <!-- Hint:                                                          -->
-    <!--   - <transmission name="tran1">                               -->
-    <!--   - type = transmission_interface/SimpleTransmission          -->
-    <!--   - joint name="joint1" with                                  -->
-    <!--       hardwareInterface = hardware_interface/EffortJointInterface -->
-    <!--   - actuator name="motor1" with the same hardwareInterface,  -->
-    <!--     mechanicalReduction = 1.                                  -->
     <!-- ============================================================ -->
-
-
-
-    <!-- ============================================================ -->
-    <!-- IN-CLASS ASSIGNMENT                                            -->
-    <!-- TODO 5 : joint2 + link2  (extend ex_robot1 to 2-DoF)          -->
-    <!--                                                                -->
-    <!-- Hint:                                                          -->
-    <!--   - Simply copy joint1 / link1 and rename to joint2 / link2.  -->
-    <!--   - joint2 parent = link1, child = link2.                     -->
-    <!--   - joint2 origin xyz="0 0 3" so it sits at the top of link1. -->
-    <!--   - Reuse the SAME geometry / inertia values as link1.        -->
-    <!-- ============================================================ -->
-
+    <transmission name="tran1">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
 
 
     <!-- ============================================================ -->
-    <!-- IN-CLASS ASSIGNMENT                                            -->
-    <!-- TODO 6 : transmission tran2  (for joint2)                     -->
-    <!--                                                                -->
-    <!-- Hint:                                                          -->
-    <!--   - Copy tran1, rename to tran2.                              -->
-    <!--   - Replace joint1 -> joint2 and motor1 -> motor2.            -->
+    <!-- TODO 6 : transmission tran2  (in-class, for joint2)           -->
     <!-- ============================================================ -->
-
+    <transmission name="tran2">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint2">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor2">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
 
 
 </robot>

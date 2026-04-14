@@ -1,9 +1,9 @@
-# Lab 4 - Dynamic Simulation and Robot Control
+# Lab 4 - Dynamic Simulation and Robot Control (Complete Solution)
 
 CITE700X / NUCE718H Mobile Robotics, 2026 Spring (Prof. Son-Cheol Yu, POSTECH)
 
-This repository is a ready-to-build catkin workspace for **Lab 4**.
-Clone it once and you have a complete `sim_ws` for the lab.
+This repository contains the **complete solution** for Lab 4, including
+all pre-class TODOs and the in-class assignment (2-DoF extension).
 
 ---
 
@@ -24,16 +24,9 @@ sudo apt-get install \
     ros-noetic-urdf-tutorial
 ```
 
-> `effort_controllers` and `urdf_tutorial` are easy to forget — the
-> first one is required by `joint1_position_controller`, the second one
-> by the RViz `display.launch` used in Section 4.3 of the slides.
-
 ---
 
 ## 2. Clone and build
-
-The repository **is** a catkin workspace. Clone it as `sim_ws` and you
-are ready to go:
 
 ```bash
 cd ~
@@ -43,117 +36,71 @@ catkin_make
 source devel/setup.bash
 ```
 
-Add the `source` command to your `~/.bashrc` so every new terminal
-picks up the workspace automatically:
+Add the `source` command to `~/.bashrc`:
 
 ```bash
 echo "source ~/sim_ws/devel/setup.bash" >> ~/.bashrc
 ```
 
-After this you should be able to find both packages:
+Verify the packages:
 
 ```bash
 rospack list | grep ex_robot1
-# ex_robot1_description /home/<you>/sim_ws/src/ex_robot1_description
-# ex_robot1_gazebo      /home/<you>/sim_ws/src/ex_robot1_gazebo
+# ex_robot1_control      /home/<you>/sim_ws/src/ex_robot1_control
+# ex_robot1_description  /home/<you>/sim_ws/src/ex_robot1_description
+# ex_robot1_gazebo       /home/<you>/sim_ws/src/ex_robot1_gazebo
 ```
 
 ---
 
-## 3. What is in this workspace
+## 3. Packages
 
-| Path | Purpose |
-|------|---------|
-| `src/ex_robot1_description/urdf/ex_robot1.urdf` | The URDF you must complete (TODO 1 ~ TODO 6). |
-| `src/ex_robot1_description/launch/ex_robot1_rviz.launch` | RViz visualization (used after TODO 1 + 2). |
-| `src/ex_robot1_gazebo/world/ex_robot1.world` | Gazebo world (no edits needed). |
-| `src/ex_robot1_gazebo/launch/ex_robot1_world.launch` | Spawns the URDF into Gazebo (no edits needed). |
+| Package | Purpose |
+|---------|---------|
+| `ex_robot1_description` | URDF model (2-DoF manipulator) + RViz launch |
+| `ex_robot1_gazebo` | Gazebo world file + spawn launch |
+| `ex_robot1_control` | ros_control YAML config + controller launch |
 
-> The `ex_robot1_control` package is **not** included on purpose — you
-> will create it yourself in Section 4.5 of the slides.
+### File structure
+
+```
+src/
+├── ex_robot1_description/
+│   ├── urdf/ex_robot1.urdf              # Complete 2-DoF URDF
+│   └── launch/ex_robot1_rviz.launch     # RViz + joint_state_publisher_gui
+├── ex_robot1_gazebo/
+│   ├── world/ex_robot1.world            # Ground plane + sun + camera
+│   └── launch/ex_robot1_world.launch    # Gazebo spawn
+└── ex_robot1_control/
+    ├── config/ex_robot1_control.yaml    # PID controllers (joint1 + joint2)
+    └── launch/ex_robot1_control.launch  # Controller spawner + robot_state_publisher
+```
 
 ---
 
-## 4. Workflow
+## 4. Run
 
-The Lab 4 slides drive everything; the TODO blocks in the URDF are
-numbered to match the slide sections.
-
-### 4.1 Pre-class TODOs (Sections 4.2 ~ 4.4)
-
-| TODO | Slide | What to add |
-|------|-------|-------------|
-| **TODO 1** | p8 (left) | `world` link + fixed joint that places `base_link` on the world |
-| **TODO 2** | p8 (right) | `joint1` (continuous) + `link1` (tall box, with **inertial**) |
-| **TODO 3** | p24 | `<gazebo>` block with the `gazebo_ros_control` plugin |
-| **TODO 4** | p25 | `transmission tran1` for `joint1` |
-
-After **TODO 1 + 2**, check your URDF in RViz:
+### 4.1 RViz visualization
 
 ```bash
 roslaunch ex_robot1_description ex_robot1_rviz.launch
 ```
 
-> When RViz opens, change **Global Options -> Fixed Frame** from
-> `base_link` to **`world`** (the URDF root link is `world`, otherwise
-> you will see a transform error).
+> Set **Global Options -> Fixed Frame** to `world` in RViz.
 
-After **TODO 3 + 4**, spawn the robot in Gazebo:
+Use the GUI sliders to rotate joint1 and joint2.
 
-```bash
-roslaunch ex_robot1_gazebo ex_robot1_world.launch
-```
-
-You should see the manipulator drop under gravity (no controller yet).
-
-### 4.2 Build your own `ex_robot1_control` package (Section 4.5, slide p33)
+### 4.2 Gazebo dynamic simulation
 
 ```bash
-cd ~/sim_ws/src
-catkin_create_pkg ex_robot1_control \
-    controller_manager joint_state_controller \
-    effort_controllers robot_state_publisher
-```
-
-Then create the two files:
-
-* `ex_robot1_control/config/ex_robot1_control.yaml`
-  — `joint_state_controller` + `joint1_position_controller`
-* `ex_robot1_control/launch/ex_robot1_control.launch`
-  — loads the YAML, spawns the controllers under `/ex_robot1`,
-  starts `robot_state_publisher`
-
-Build and run, in two terminals:
-
-```bash
-cd ~/sim_ws && catkin_make && source devel/setup.bash
-
-# Terminal A
+# Terminal 1
 roslaunch ex_robot1_gazebo ex_robot1_world.launch
 
-# Terminal B
+# Terminal 2
 roslaunch ex_robot1_control ex_robot1_control.launch
 ```
 
-Send a position command:
-
-```bash
-rostopic pub -1 /ex_robot1/joint1_position_controller/command \
-    std_msgs/Float64 'data: 0.5'
-```
-
-`link1` should swing to about 0.5 rad and hold there thanks to the PID.
-
-### 4.3 In-Class Assignment (slide p37) — 2-DoF extension
-
-| TODO | What to add |
-|------|-------------|
-| **TODO 5** | `joint2` + `link2` in `urdf/ex_robot1.urdf` |
-| **TODO 6** | `transmission tran2` for `joint2` |
-| - | Add `joint2_position_controller` to `ex_robot1_control.yaml` |
-| - | Add `joint2_position_controller` to the spawner args of `ex_robot1_control.launch` |
-
-Verify:
+### 4.3 Send position commands
 
 ```bash
 rostopic pub -1 /ex_robot1/joint1_position_controller/command std_msgs/Float64 'data: 0.5'
@@ -162,24 +109,29 @@ rostopic pub -1 /ex_robot1/joint2_position_controller/command std_msgs/Float64 '
 
 Both joints should hold their commanded positions.
 
-Plot the response with `rqt_gui`:
+### 4.4 Sine tracking with rqt_gui (slide p35)
 
 ```bash
 rosrun rqt_gui rqt_gui
 ```
 
-Add the `MatPlot` and `Message Publisher` plugins, set the topic to
-`/ex_robot1/joint1_position_controller/command`, type `expression =
-sin(i/100)`, frequency `200 Hz`, and watch the joint follow the sinusoid.
+* **MatPlot** plugin: subscribe to `/ex_robot1/joint1_position_controller/state/process_value`
+* **Message Publisher** plugin: topic `/ex_robot1/joint1_position_controller/command`,
+  expression `sin(i/100)`, frequency `200 Hz`
 
 ---
 
-## 5. Hints
+## 5. Robot specifications
+
+| Link | Size (m) | Mass (kg) | Parent joint | Joint axis | Joint type |
+|------|----------|-----------|-------------|------------|------------|
+| base_link | 1.0 x 1.0 x 1.0 | 12 | fixed (world) | - | fixed |
+| link1 | 0.3 x 0.3 x 3.0 | 3 | joint1 | y-axis | continuous |
+| link2 | 0.3 x 0.3 x 3.0 | 3 | joint2 | y-axis | continuous |
 
 ### Solid box inertia
 
-For a solid box of dimensions `(a, b, c)` and mass `m` (rotation axes
-through the center of mass):
+For a solid box of dimensions `(a, b, c)` and mass `m`:
 
 ```
 ixx = (1/12) * m * (b^2 + c^2)
@@ -187,49 +139,59 @@ iyy = (1/12) * m * (a^2 + c^2)
 izz = (1/12) * m * (a^2 + b^2)
 ```
 
-For `link1` with `size="0.3 0.3 3"` and `mass="3"`:
+| Link | ixx | iyy | izz |
+|------|-----|-----|-----|
+| base_link (1x1x1, 12 kg) | 2.0 | 2.0 | 2.0 |
+| link1/link2 (0.3x0.3x3, 3 kg) | 2.2725 | 2.2725 | 0.045 |
 
+### Controller configuration
+
+Both joints use `effort_controllers/JointPositionController`:
+
+```yaml
+pid: {p: 200.0, i: 0.01, d: 50.0}
 ```
-ixx = iyy = (1/12) * 3 * (0.3^2 + 3.0^2) = 2.2725
-izz       = (1/12) * 3 * (0.3^2 + 0.3^2) = 0.045
-```
-
-### Why `base_link` needs `<inertial>`
-
-Gazebo silently **removes** any link that has visual / collision but no
-inertial block. If you forget the inertial of `base_link`, the spawned
-model has no `joint1` and you will see:
-
-```
-This robot has a joint named "joint1" which is not in the gazebo model.
-```
-
-`base_link` is included as a complete example in `ex_robot1.urdf` —
-use it as a template for `link1` (and later `link2`).
-
-### Continuous joint position values
-
-`joint1` and `joint2` are `continuous` joints, so the reported position
-is **not wrapped** to `[-pi, pi]`. After a transient (for example a free
-fall right after `spawn`), you may see a position like `5.21` rad which
-is just `-1.07 + 2*pi`. The PID is working correctly; the absolute value
-just includes accumulated rotations.
 
 ---
 
-## 6. Troubleshooting
+## 6. Slide-to-code mapping
+
+The URDF section markers (TODO 1~6) are kept for reference to the Lab 4 slides:
+
+| Section | Slide | Content |
+|---------|-------|---------|
+| TODO 1 | p8 (left) | `world` link + fixed joint |
+| TODO 2 | p8 (right) | `joint1` + `link1` (with inertial) |
+| TODO 3 | p24 | `gazebo_ros_control` plugin |
+| TODO 4 | p25 | Transmission `tran1` for `joint1` |
+| TODO 5 | p37 | `joint2` + `link2` (in-class, 2-DoF extension) |
+| TODO 6 | p37 | Transmission `tran2` for `joint2` |
+
+---
+
+## 7. Diagnostics
+
+```bash
+rosservice call /ex_robot1/controller_manager/list_controllers
+rostopic echo -n 1 /ex_robot1/joint_states
+rostopic list | grep ex_robot1
+```
+
+---
+
+## 8. Troubleshooting
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | `effort_controllers/JointPositionController` not found | `ros-noetic-effort-controllers` missing | `sudo apt-get install ros-noetic-effort-controllers` |
-| `joint1 which is not in the gazebo model` | `base_link` (or any parent link) has no `<inertial>` | Add an inertial block |
-| RViz transform error after `display.launch` | Fixed Frame is `base_link`, but URDF root is `world` | Change Fixed Frame to `world` |
-| `controller_spawner` keeps retrying | YAML namespace mismatch | The YAML root must be `ex_robot1:` and the spawner `ns="/ex_robot1"` |
-| Robot falls over and never stops | `ex_robot1_control.launch` not started | Run both `world.launch` and `control.launch` |
+| `joint1 which is not in the gazebo model` | A link is missing `<inertial>` | Add an inertial block to every link with `<visual>` |
+| RViz transform error | Fixed Frame is `base_link` | Change Fixed Frame to `world` |
+| `controller_spawner` keeps retrying | YAML namespace mismatch | YAML root must be `ex_robot1:`, spawner `ns="/ex_robot1"` |
+| Robot falls over and never stops | `control.launch` not started | Run both `world.launch` and `control.launch` |
 
 ---
 
-## 7. Reference
+## 9. Reference
 
 * Lab 4 slides: `2026_Spring_이동로봇공학_Lab04_Dynamic_simulation_Robot_control.pdf`
 * ROS wiki: <http://wiki.ros.org/urdf/Tutorials>

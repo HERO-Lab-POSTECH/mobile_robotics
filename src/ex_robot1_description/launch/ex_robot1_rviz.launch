@@ -1,7 +1,6 @@
 <!--
-  Lab 4 worksheet : launches the ex_robot1 manipulator in RViz with a GUI
-  slider for the joint states. Use this launch file after completing
-  TODO 1 and TODO 2 of urdf/ex_robot1.urdf to verify your URDF visually.
+  Lab 4 : launches the ex_robot1 2-DoF manipulator in RViz with a GUI
+  slider for the joint states.
 
   Note: when RViz opens, set Global Options -> Fixed Frame to "world"
   (the default "base_link" causes a transform error because the URDF
