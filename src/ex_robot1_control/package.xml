@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>ex_robot1_control</name>
+  <version>0.0.1</version>
+  <description>
+    ros_control configuration for the ex_robot1 manipulator.
+    Provides PID controller settings (config/) and a launch file
+    (launch/) that spawns the controllers into Gazebo.
+  </description>
+  <maintainer email="cite700x@postech.ac.kr">CITE700X Mobile Robotics</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Runtime dependencies for ros_control -->
+  <exec_depend>controller_manager</exec_depend>       <!-- loads/starts/stops controllers -->
+  <exec_depend>joint_state_controller</exec_depend>    <!-- publishes /joint_states -->
+  <exec_depend>effort_controllers</exec_depend>        <!-- PID position controller (effort-based) -->
+  <exec_depend>robot_state_publisher</exec_depend>     <!-- /joint_states -> TF transforms -->
+</package>
