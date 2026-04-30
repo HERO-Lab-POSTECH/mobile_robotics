@@ -27,14 +27,23 @@ int main(int argc, char **argv)
 
     // ================================================================
     // TODO 1: Declare a publisher that advertises /key_command.
-    //   - Variable name : ros_pub
-    //   - Topic name    : /key_command
-    //   - Message type  : std_msgs::Char
-    //   - Queue size    : 100
-    //   See Lab06 slide p13 for the syntax.
-    //   Replace the stub below with the real nh.advertise<...>(...).
+    //
+    //   Required parameters:
+    //     - Variable name : ros_pub
+    //     - Topic name    : "/key_command"
+    //     - Message type  : std_msgs::Char
+    //     - Queue size    : 100
+    //
+    //   General syntax for nh.advertise:
+    //     ros::Publisher <var> = nh.advertise< <MsgType> >(<topic>, <queue>);
+    //
+    //   So with the values above, your line should look like:
+    //     ros::Publisher ros_pub = nh.advertise<std_msgs::Char>(   ???   ,   ???   );
+    //
+    //   Replace the stub line below with the complete declaration.
+    //   See Lab 06 slide p13 for the same pattern.
     // ================================================================
-    ros::Publisher ros_pub;  // <-- stub; assign with nh.advertise<...>(...)
+    ros::Publisher ros_pub;  // <-- TODO 1: replace with the full nh.advertise<...>(...) line
 
     ros::Rate loop_rate(100);
 
@@ -48,8 +57,14 @@ int main(int argc, char **argv)
 
         // ============================================================
         // TODO 2: Publish the keyboard message on /key_command.
-        //   Hint: ros_pub.publish(msg);
+        //
+        //   You already have the publisher (ros_pub) and the message
+        //   (msg). Calling .publish() on the publisher object pushes
+        //   the message onto the topic.
+        //
+        //   Just uncomment the next line:
         // ============================================================
+        // ros_pub.publish(msg);
 
         ros::spinOnce();
         loop_rate.sleep();
