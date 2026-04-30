@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2016 The UUV Simulator Authors.
+     All rights reserved.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!-- Optional external dependency (nps_uw_multibeam_sonar) disabled for Lab 06 classroom build.
+     Re-enable only if the package is installed in the workspace and the macro below is uncommented.
+<xacro:include filename="$(find nps_uw_multibeam_sonar)/urdf/multibeam_sonar_blueview_p900.xacro"/>
+-->
+
+    <!-- Magnetometer  -->
+  <xacro:default_magnetometer namespace="${namespace}" parent_link="${namespace}/base_link"/>
+
+
+    <!-- Pressure  -->
+  <xacro:default_pressure_macro namespace="${namespace}" parent_link="${namespace}/base_link">
+    <origin xyz="-0 0 0" rpy="0 0 0"/>
+  </xacro:default_pressure_macro>
+
+  <!-- IMU (Lab 07 setup): swapped from default_imu_macro to libgazebo_ros_imu_sensor.so
+       so that /cyclops/imu publishes sensor_msgs::Imu at 125 Hz, which auv_controller_node
+       (Lab 07) subscribes to for yaw PID control. Do not change unless you know why. -->
+  <gazebo reference="${namespace}/base_link">
+    <gravity>true</gravity>
+    <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on>
+      <update_rate>125</update_rate>
+      <visualize>true</visualize>
+      <topic>__default_topic__</topic>
+      <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+        <topicName>imu</topicName>
+        <bodyName>imu_link</bodyName>
+        <updateRateHZ>125.0</updateRateHZ>
+        <gaussianNoise>0.00</gaussianNoise>
+        <xyzOffset>0 0 0</xyzOffset>
+        <rpyOffset>0 0 0</rpyOffset>
+        <frameName>${namespace}/base_link</frameName>
+        <initialOrientationAsReference>false</initialOrientationAsReference>
+      </plugin>
+      <pose>0 0 0 0 0 ${pi}</pose>
+    </sensor>
+  </gazebo>
+<!--
+    <xacro:forward_multibeam_sonar_m450_130 namespace="$(arg namespace)" parent_link="$(arg namespace)/base_link">
+    <origin xyz="1.4 0 0.65" rpy="0 0 0"/>
+    </xacro:forward_multibeam_sonar_m450_130>
+ -->
+  <xacro:cy_camera namespace="${namespace}" parent_link="${namespace}/base_link" suffix="front">
+	 <origin xyz="-0.6 0 0" rpy="0 0 ${ppi}"/>
+	</xacro:cy_camera>
+
+<!-- Optional multibeam sonar (requires nps_uw_multibeam_sonar). Disabled for Lab 06 classroom build.
+<xacro:multibeam_blueview_p900_ray_macro
+scale="1 1 1"
+debug="false"
+ray_visual="true"
+robot_name="cyclops"
+name="$(arg namespace)"
+robot_link="$(arg namespace)/base_link"
+sonar_image_topic="$(arg namespace)/sonar_image"
+sonar_image_raw_topic="$(arg namespace)/sonar_image_raw"
+maxDistance="10"
+raySkips="5"
+plotScaler="0"
+sensorGain="0.02"
+writeLog="false"
+writeFrameInterval="5"
+gaussian_noise_mean="0.0"
+gaussian_noise_stddev="0.0"
+fidelity="512"
+>
+    <origin xyz="-0.4 0 -1" rpy="0 0.349 0"/>
+</xacro:multibeam_blueview_p900_ray_macro>
+-->
+
+
+  
+  <!-- Mount a Pose 3D sensor. -->
+  <xacro:default_pose_3d_macro
+    namespace="${namespace}"
+    parent_link="${namespace}/base_link"
+    inertial_reference_frame="${inertial_reference_frame}" />
+</robot>
