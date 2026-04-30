@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+    Programming Assignment #2 starter template.
+    Rename this package to <yourname>_controller (lowercase).
+    Update the <maintainer> tag with your real name and email.
+-->
+<package format="2">
+  <name>name_controller_template</name>
+  <version>0.0.0</version>
+  <description>Programming Assignment #2 — AUV closed-loop controller.</description>
+  <maintainer email="your_email@postech.ac.kr">YourName</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>uuv_gazebo_ros_plugins_msgs</build_depend>
+
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
+  <build_export_depend>sensor_msgs</build_export_depend>
+  <build_export_depend>uuv_gazebo_ros_plugins_msgs</build_export_depend>
+
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>uuv_gazebo_ros_plugins_msgs</exec_depend>
+
+  <export></export>
+</package>
