@@ -1,4 +1,7 @@
 <launch>
+	<!-- Lab 6 main demo launch.
+	     Spawns the Cyclops AUV in the heroslam world and starts the
+	     supporting services (URDF upload, robot_state_publisher, RViz). -->
 	<arg name="debug" default="0" />
 	<!--  Vehicle's initial pose -->
 	<arg name="x" default="0" />

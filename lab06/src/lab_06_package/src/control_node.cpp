@@ -1,3 +1,7 @@
+// Lab 6 control node.
+// Subscribes to /key_input from the command node and publishes individual
+// thruster commands to drive the Cyclops AUV in the requested direction.
+// Each branch below maps one key to a fixed thruster pattern.
 #include "ros/ros.h"
 #include <std_msgs/Char.h>
 #include <sensor_msgs/FluidPressure.h>
@@ -70,7 +74,7 @@ int main(int argc, char **argv)
     while (ros::ok())
     {
 	ROS_INFO("depth = %f", depth);
-        if (control_state == 1) //전진 forward
+        if (control_state == 1) // forward
         {
 			//
 			// Declare publish message
@@ -86,7 +90,7 @@ int main(int argc, char **argv)
             pub_thruster6.publish(vel);
             pub_thruster7.publish(vel);
         }
-        else if (control_state == 2) //후진 backward
+        else if (control_state == 2) // backward
         {
 			//
 			// Declare publish message
@@ -100,7 +104,7 @@ int main(int argc, char **argv)
             pub_thruster6.publish(vel);
             pub_thruster7.publish(vel);
         }
-        else if (control_state == 3) //좌 sway
+        else if (control_state == 3) // sway left
         {
 			//
 			// Declare publish message
@@ -115,7 +119,7 @@ int main(int argc, char **argv)
             pub_thruster6.publish(vel);
             pub_thruster7.publish(vel);
         }
-        else if (control_state == 4) //우 sway
+        else if (control_state == 4) // sway right
         {
 			//
 			// Declare publish message
@@ -130,7 +134,7 @@ int main(int argc, char **argv)
             pub_thruster6.publish(vel);
             pub_thruster7.publish(vel);
         }
-        else if (control_state == 5) //상승 heave up
+        else if (control_state == 5) // heave up
         {
             vel.data = -control_speed * 10;
             pub_thruster0.publish(vel);
@@ -144,7 +148,7 @@ int main(int argc, char **argv)
             pub_thruster6.publish(vel);
             pub_thruster7.publish(vel);
         }
-        else if (control_state == 6) //하강 heave down
+        else if (control_state == 6) // heave down
         {
             vel.data = control_speed * 10;
             pub_thruster0.publish(vel);
@@ -158,7 +162,7 @@ int main(int argc, char **argv)
             pub_thruster6.publish(vel);
             pub_thruster7.publish(vel);
         }
-        else if (control_state == 0) //멈춤 stop
+        else if (control_state == 0) // stop
         {
 			//
 			// Declare publish message

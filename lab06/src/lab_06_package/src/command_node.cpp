@@ -1,3 +1,6 @@
+// Lab 6 command node.
+// Reads keyboard input and publishes a control_state integer to /key_input
+// that the control node consumes. See Lab 6 slides for the keymap (w/s/a/d/i/k/q).
 #include "ros/ros.h"
 #include <std_msgs/Char.h>
 
