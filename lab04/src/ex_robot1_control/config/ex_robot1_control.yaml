@@ -20,4 +20,6 @@ ex_robot1:    # namespace (must match <robotNamespace> in URDF gazebo plugin)
   joint1_position_controller:
     type: effort_controllers/JointPositionController
     joint: joint1                         # must match joint name in URDF
+    # PID gains: increase p for stiffness, d for damping. i compensates for
+    # steady-state error from gravity sag. See Lab 4 slides p32.
     pid: {p: 200.0, i: 0.01, d: 50.0}    # P=proportional, I=integral, D=derivative
