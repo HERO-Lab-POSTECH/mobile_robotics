@@ -22,7 +22,7 @@ assignment2_template/
 └── name_controller_template/
     ├── package.xml                    # <-- rename + edit maintainer
     ├── CMakeLists.txt                 # <-- rename
-    ├── Readme.txt                     # <-- fill (commands to run your package)
+    ├── Readme.md                      # <-- fill (commands + your info, markdown)
     └── src/
         ├── auv_controller_node.cpp    # spec-strict skeleton
         └── teleop_keyboard.cpp        # spec-strict skeleton
@@ -138,7 +138,7 @@ Assignment 2 strips most of the above. You will write:
   forward, backward, sway-left, sway-right) — no worked example.
 - The `teleop_keyboard` key dispatcher (no template helper besides
   the `init_keyboard / _kbhit / _getch` POSIX scaffolding).
-- The `Readme.txt` listing every command needed to run your package.
+- The `Readme.md` listing every command needed to run your package (markdown format; fill in your student ID, name, and email at the top).
 
 Also note these spec deltas relative to the Lab 07 instructor solution:
 
@@ -332,7 +332,7 @@ two surge-direction thrusters.
 
 - [ ] Source files in C++ or Python.
 - [ ] `package.xml` + `CMakeLists.txt` updated with package name + maintainer.
-- [ ] `Readme.txt` listing every command needed to launch your package.
+- [ ] `Readme.md` listing every command needed to launch your package (markdown).
 - [ ] `yaw_control_result.jpg` (90° step, settles within 2 s).
 - [ ] `depth_control_result.jpg` (1 m step, settles within 2 s).
 - [ ] Archive named `<StudentID>_<Name>_Assignment2.zip`.
