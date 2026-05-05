@@ -1,0 +1,23 @@
+# ros_control configuration for ex_robot1 (1-DoF)
+#
+# This YAML is loaded into the ROS Parameter Server by the launch file.
+# controller_manager reads these parameters to create controller instances.
+
+ex_robot1:    # namespace (must match <robotNamespace> in URDF gazebo plugin)
+
+  # Publishes all joint positions, velocities, and efforts
+  # to /ex_robot1/joint_states at the specified rate.
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50    # Hz
+
+  # PID position controller for joint1.
+  # Reads current joint1 position, computes error against the commanded
+  # target, and outputs effort (torque) using a PID control law.
+  #
+  # Command topic : /ex_robot1/joint1_position_controller/command  (Float64)
+  # State topic   : /ex_robot1/joint1_position_controller/state    (JointControllerState)
+  joint1_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: joint1                         # must match joint name in URDF
+    pid: {p: 200.0, i: 0.01, d: 50.0}    # P=proportional, I=integral, D=derivative

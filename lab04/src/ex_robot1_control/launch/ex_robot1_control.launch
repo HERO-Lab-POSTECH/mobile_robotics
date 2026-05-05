@@ -1,0 +1,38 @@
+<!--
+  Loads and starts the ros_control controllers for ex_robot1.
+
+  Prerequisites:
+    - Gazebo must be running with the ex_robot1 model spawned
+      (roslaunch ex_robot1_gazebo ex_robot1_world.launch)
+    - The URDF must contain the gazebo_ros_control plugin
+
+  What this does:
+    1. Loads controller parameters from YAML into the parameter server
+    2. Spawns the controllers via controller_manager
+    3. Starts robot_state_publisher for TF broadcasting
+
+  Usage:
+    roslaunch ex_robot1_control ex_robot1_control.launch
+-->
+<launch>
+    <!-- Load PID controller settings from YAML into parameter server.
+         These parameters tell controller_manager what controllers to
+         create and how to configure them. -->
+    <rosparam file="$(find ex_robot1_control)/config/ex_robot1_control.yaml" command="load"/>
+
+    <!-- Spawn (create and start) the listed controllers.
+         ns="/ex_robot1" must match the URDF's <robotNamespace>.
+         The spawner waits for controller_manager to be available
+         (provided by the gazebo_ros_control plugin). -->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner"
+          respawn="false" output="screen" ns="/ex_robot1"
+          args="joint1_position_controller joint_state_controller"/>
+
+    <!-- robot_state_publisher converts /joint_states into TF transforms.
+         The remap is needed because joint_state_controller publishes
+         under the /ex_robot1/ namespace, not the default /joint_states. -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+          type="robot_state_publisher" respawn="false" output="screen">
+        <remap from="/joint_states" to="/ex_robot1/joint_states"/>
+    </node>
+</launch>
