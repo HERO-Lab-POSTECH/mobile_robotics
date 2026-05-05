@@ -1,3 +1,7 @@
+// Lab 7 depth and yaw cascaded PID controller.
+// Subscribes to depth and IMU feedback, computes PID outputs for
+// vertical motion and yaw, and distributes them across the eight
+// Cyclops thrusters using the mapping documented in Lab 7 slides.
 #include <ros/package.h>
 #include "ros/ros.h"
 
@@ -167,16 +171,16 @@ void msgCallbackCommand(const std_msgs::UInt8::ConstPtr &msg)
     }
 }
 
-ros::Publisher *pub_thruster0_ptr; //- 상승, 오른 히브
-ros::Publisher *pub_thruster1_ptr; //- 상승, 왼 히브
+ros::Publisher *pub_thruster0_ptr; // negative = heave-up, right heave thruster
+ros::Publisher *pub_thruster1_ptr; // negative = heave-up, left heave thruster
 
-ros::Publisher *pub_thruster2_ptr; //- 전진, 오른
-ros::Publisher *pub_thruster3_ptr; //- 전진, 왼
+ros::Publisher *pub_thruster2_ptr; // negative = forward (surge), right
+ros::Publisher *pub_thruster3_ptr; // negative = forward (surge), left
 
-ros::Publisher *pub_thruster4_ptr; // 오른 뒤, - 반시계
-ros::Publisher *pub_thruster5_ptr; // 오른 앞, - 시계
-ros::Publisher *pub_thruster6_ptr; // 왼 앞, - 반시계
-ros::Publisher *pub_thruster7_ptr; // 왼 뒤, - 시계
+ros::Publisher *pub_thruster4_ptr; // right rear;  negative = counter-clockwise (yaw left)
+ros::Publisher *pub_thruster5_ptr; // right front; negative = clockwise (yaw right)
+ros::Publisher *pub_thruster6_ptr; // left front;  negative = counter-clockwise (yaw left)
+ros::Publisher *pub_thruster7_ptr; // left rear;   negative = clockwise (yaw right)
 
 double error_pid_depth, error_pid_depth1;
 double P_angle_pid_depth;

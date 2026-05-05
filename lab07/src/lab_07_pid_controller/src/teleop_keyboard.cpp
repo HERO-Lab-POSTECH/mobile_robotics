@@ -1,3 +1,6 @@
+// Lab 7 keyboard teleop.
+// Reads single-key input and publishes setpoint changes that the
+// PID controller node consumes (e.g. depth setpoint up/down).
 #include "ros/ros.h"
 #include <std_msgs/UInt8.h>
 #include <std_msgs/UInt8MultiArray.h>

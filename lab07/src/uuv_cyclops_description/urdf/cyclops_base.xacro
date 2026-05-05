@@ -16,6 +16,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+	<!-- Cyclops AUV description.
+	     Composes the hull, eight thrusters, and the sensor suite (IMU, depth,
+	     camera). The thruster placement determines the mixing pattern used in
+	     lab_07_pid_controller/auv_controller_node.cpp. -->
 	<!--
 	The cyclops meshes and hydrodynamic parameters are based on the parameters and dimensions
 	from the SF 30k.
