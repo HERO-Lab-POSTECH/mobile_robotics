@@ -1,24 +1,3 @@
-# catkin build artifacts
-build/
-devel/
-install/
-logs/
-.catkin_workspace
-*.user
-
-# Python bytecode
-__pycache__/
 *.pyc
-*.pyo
-
-# Editor / OS
-.vscode/
-.idea/
-*.swp
-*~
+__pycache__/
 .DS_Store
-Thumbs.db
-._*
-
-# ROS log directory
-.ros/

@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<!--
+  ex_robot1 : 1-DoF revolute-joint manipulator
+
+  Robot structure:
+    world (fixed) - base_link (1x1x1 box, 12 kg)
+                      +- joint1 (continuous, y-axis) - link1 (0.3x0.3x3, 3 kg)
+-->
+<robot name="ex_robot1">
+
+    <!-- ================================================================ -->
+    <!-- base_link                                                        -->
+    <!--   The base of the manipulator, fixed to the world.               -->
+    <!--   <visual>    : what you see in RViz / Gazebo                    -->
+    <!--   <collision> : shape used for physics collision detection       -->
+    <!--   <inertial>  : mass and rotational inertia for dynamics         -->
+    <!--     * Gazebo silently removes any link without <inertial>.       -->
+    <!--     * Solid-box formula: Ixx = (1/12)*m*(b^2 + c^2), etc.       -->
+    <!-- ================================================================ -->
+    <link name="base_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="1 1 1"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="1 1 1"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="12"/>
+            <!-- 1x1x1 box, 12 kg : ixx=iyy=izz = (1/12)*12*(1^2 + 1^2) = 2.0 -->
+            <inertia ixx="2.0" ixy="0.0" ixz="0.0"
+                     iyy="2.0" iyz="0.0"
+                     izz="2.0"/>
+        </inertial>
+    </link>
+
+    <!-- ================================================================ -->
+    <!-- world link + fixed joint                                         -->
+    <!--   "world" is an empty link that serves as the URDF root frame.   -->
+    <!--   The fixed joint lifts base_link 0.5 m above the ground so     -->
+    <!--   that the bottom of the 1 m tall box sits on z = 0.             -->
+    <!-- ================================================================ -->
+    <link name="world"/>
+
+    <joint name="fixed" type="fixed">
+        <origin xyz="0 0 0.5" rpy="0 0 0"/>
+        <parent link="world"/>
+        <child link="base_link"/>
+    </joint>
+
+    <!-- ================================================================ -->
+    <!-- joint1 (continuous) + link1                                      -->
+    <!--   joint1 sits on top of base_link (z = 0.5 from base center).   -->
+    <!--   "continuous" = unlimited rotation (no joint limits).           -->
+    <!--   axis y = rotation around the y-axis.                          -->
+    <!--   damping = viscous friction coefficient (Nm*s/rad).            -->
+    <!--                                                                  -->
+    <!--   link1 visual/collision origin z = 1.5 so that the 3 m tall    -->
+    <!--   box is centered along its own length above the joint.         -->
+    <!-- ================================================================ -->
+    <joint name="joint1" type="continuous">
+        <parent link="base_link"/>
+        <child link="link1"/>
+        <origin xyz="0 0 0.5" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.7"/>
+    </joint>
+
+    <link name="link1">
+        <visual>
+            <origin xyz="0 0 1.5" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.3 0.3 3"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 1.5" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.3 0.3 3"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz="0 0 1.5" rpy="0 0 0"/>
+            <mass value="3"/>
+            <!-- 0.3x0.3x3 box, 3 kg -->
+            <!-- ixx = iyy = (1/12)*3*(0.3^2 + 3^2)   = 2.2725 -->
+            <!-- izz       = (1/12)*3*(0.3^2 + 0.3^2) = 0.045  -->
+            <inertia ixx="2.2725" ixy="0.0" ixz="0.0"
+                     iyy="2.2725" iyz="0.0"
+                     izz="0.045"/>
+        </inertial>
+    </link>
+
+    <!-- ================================================================ -->
+    <!-- gazebo_ros_control plugin                                        -->
+    <!--   This plugin bridges Gazebo's physics engine with the           -->
+    <!--   ros_control framework. Without it, ros_control cannot          -->
+    <!--   read joint states or apply effort (torque) to joints.          -->
+    <!--                                                                  -->
+    <!--   robotNamespace : all controller topics appear under            -->
+    <!--     /ex_robot1/  (e.g. /ex_robot1/joint1_position_controller/)   -->
+    <!--   robotSimType   : default hardware simulation interface that    -->
+    <!--     reads position/velocity and writes effort per joint.         -->
+    <!-- ================================================================ -->
+    <gazebo>
+        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+            <robotNamespace>/ex_robot1</robotNamespace>
+            <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+        </plugin>
+    </gazebo>
+
+    <!-- ================================================================ -->
+    <!-- transmission tran1 : motor1 -> joint1                            -->
+    <!--   Defines how an actuator (motor) drives a joint.                -->
+    <!--   SimpleTransmission = one motor drives one joint (1:1).         -->
+    <!--   EffortJointInterface = the PID controller outputs torque.      -->
+    <!--   mechanicalReduction = gear ratio (1 = direct drive).           -->
+    <!-- ================================================================ -->
+    <transmission name="tran1">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <!-- ================================================================ -->
+    <!-- In-Class Assignment : extend to 2-DoF                            -->
+    <!--                                                                  -->
+    <!-- Hints:                                                           -->
+    <!--   1. Add joint2 (continuous, y-axis) + link2 below link1.        -->
+    <!--      - joint2 parent = link1, child = link2                      -->
+    <!--      - joint2 origin: top of link1 (think about link1's height)  -->
+    <!--      - link2 can reuse the same geometry and inertia as link1.   -->
+    <!--                                                                  -->
+    <!--   2. Add transmission tran2 for joint2.                          -->
+    <!--      - Same structure as tran1, with renamed joint and motor.    -->
+    <!--                                                                  -->
+    <!--   3. Update ex_robot1_control.yaml :                             -->
+    <!--      - Add joint2_position_controller (same PID structure).      -->
+    <!--                                                                  -->
+    <!--   4. Update ex_robot1_control.launch :                           -->
+    <!--      - Add joint2_position_controller to the spawner args.       -->
+    <!-- ================================================================ -->
+
+</robot>
