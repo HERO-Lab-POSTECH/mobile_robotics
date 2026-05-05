@@ -42,7 +42,7 @@ rosrun lab_06_package command_node
 
 ## Packages
 
-- `lab_06_package/` - keyboard command and control nodes (contains TODOs).
+- `lab_06_package/` - keyboard command and control nodes (completed solution).
 - `uuv_cyclops_description/` - Cyclops URDF.
 - `uuv_gazebo_worlds/` - heroslam world.
 

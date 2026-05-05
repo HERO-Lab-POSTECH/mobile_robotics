@@ -4,16 +4,17 @@ POSTECH CITE700X Mobile Robotics (2026 Spring).
 
 ## Setup
 
-Lab 07 shares the same student distribution branch as Lab 06. If you already
-built Lab 06, you only need to build the new package:
-
 ```bash
 git clone https://github.com/HERO-Lab-POSTECH/mobile_robotics.git
-cd mobile_robotics/lab06
+cd mobile_robotics/lab07
 sudo ./install_deps.sh
 catkin_make
 source devel/setup.bash
 ```
+
+Lab 07 is an independent catkin workspace under `lab07/`. You do not need to
+build Lab 06 first; the UUV simulator dependencies that both labs share are
+installed by `install_deps.sh`.
 
 ## Run
 
@@ -60,7 +61,7 @@ is acceptable.
 
 ## Packages
 
-- `lab_07_pid_controller/` - PID controller and teleop nodes (contains TODOs).
+- `lab_07_pid_controller/` - PID controller and teleop nodes (completed solution).
 - `uuv_cyclops_description/` - Cyclops URDF with IMU plugin.
 - `uuv_gazebo_worlds/` - heroslam world.
 
