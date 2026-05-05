@@ -29,20 +29,23 @@ assignment2_template/
 ```
 
 The template is **one ROS package**, not a workspace. Drop it into the
-catkin workspace you built for Lab 07 (`~/uuv_ws`) — the UUV simulator
-stack and the Cyclops model are already there from the `lab06` branch,
-including the IMU plugin swap.
+catkin workspace you built for Lab 7 (`~/mobile_robotics/lab07/`) — the
+UUV simulator stack and the Cyclops model are already there once you
+have run `lab07/install_deps.sh` and `catkin_make` from the `main`
+distribution.
 
 ---
 
 ## 2. How to use this template
 
-### Step 1 — clone next to your existing Lab 07 workspace
+### Step 1 — clone next to your Lab 7 workspace
 
 ```bash
 cd ~
 git clone -b assignment2 https://github.com/HERO-Lab-POSTECH/mobile_robotics.git assignment2_template
 ```
+
+Your Lab 7 workspace is `~/mobile_robotics/lab07/` from the `main` distribution clone; the UUV simulator stack must already be built and sourced there.
 
 ### Step 2 — rename the package to your own name
 
@@ -61,15 +64,17 @@ mv name_controller_template gildonghong_controller
 # Update <maintainer> in package.xml with your name + email.
 ```
 
-### Step 3 — copy the package into your Lab 07 workspace
+### Step 3 — copy the package into your Lab 7 workspace
 
 ```bash
 cp -r ~/assignment2_template/assignment2_template/gildonghong_controller \
-      ~/uuv_ws/src/
-cd ~/uuv_ws
+      ~/mobile_robotics/lab07/src/
+cd ~/mobile_robotics/lab07
 catkin_make
 source devel/setup.bash
 ```
+
+*If you completed Lab 6 instead of (or in addition to) Lab 7, you can also use `~/mobile_robotics/lab06/` -- what matters is that the UUV simulator stack is built and sourced.*
 
 ### Step 4 — implement and test
 
@@ -104,7 +109,7 @@ with Python (matplotlib). Save as JPG inside the package folder.
 ### Step 6 — package and submit
 
 ```bash
-cd ~/uuv_ws/src
+cd ~/mobile_robotics/lab07/src
 zip -r 20240001_GildongHong_Assignment2.zip <name>_controller \
     -x '*/build/*' '*/devel/*' '*/.git/*' '*/__pycache__/*'
 ```
@@ -146,9 +151,109 @@ Also note these spec deltas relative to the Lab 07 instructor solution:
 | Position-hold PID (X/Y) | included | **out of scope** |
 | Target-depth keys | none | `o` / `l` (+0.1 / −0.1 m) |
 
+### About "no external dependencies"
+
+The PDF's "no external dependencies" wording applies to your **submitted package**: its `package.xml` must depend only on `roscpp`, `std_msgs`, `sensor_msgs`, and `uuv_gazebo_ros_plugins_msgs`. The UUV simulator stack itself is a **system-level** dependency installed by `lab07/install_deps.sh` from the `main` distribution; it lives outside your package and is not unpacked from your submission archive. Do not add `uuv_simulator` (or any of its sub-packages) to your `package.xml` -- your grader already has it installed.
+
 ---
 
-## 4. Spec quick-reference (read the PDF for binding language)
+## 4. PID gain tuning workflow (standalone controller)
+
+You do **not** have to finish `teleop_keyboard` before you start tuning. As soon as `auv_controller_node` builds, you can drive targets and read state directly with ROS command-line tools. The intended loop is:
+
+1. Run the controller alone.
+2. Publish a step input on `/cyclops/control_target`.
+3. Watch `/cyclops/RPYD` to see how the AUV responds.
+4. Adjust **one** gain (start with P, then add D, then I) and repeat.
+
+This is exactly the workflow you will use to capture the two required JPG plots -- there is no shortcut once you start tuning seriously.
+
+### 4.1 Watch the state
+
+Live numeric stream:
+
+```bash
+rostopic echo /cyclops/RPYD
+```
+
+Live plot of yaw and depth (yaw is `data[2]`, depth is `data[3]`):
+
+```bash
+rqt_plot /cyclops/RPYD/data[2] /cyclops/RPYD/data[3]
+```
+
+`rqt_plot` ships with `ros-noetic-desktop-full`; you do not need to install anything extra.
+
+### 4.2 Drive the controller mode
+
+`/cyclops/command` is a `std_msgs/UInt8`. Common codes (full list in section 5):
+
+```bash
+rostopic pub -1 /cyclops/command std_msgs/UInt8 "data: 6"   # yaw control ON
+rostopic pub -1 /cyclops/command std_msgs/UInt8 "data: 8"   # depth control ON
+rostopic pub -1 /cyclops/command std_msgs/UInt8 "data: 5"   # stop
+rostopic pub -1 /cyclops/command std_msgs/UInt8 "data: 11"  # zero current yaw
+```
+
+Enable the loop you want to tune **before** publishing a target step.
+
+### 4.3 Step inputs
+
+`/cyclops/control_target` carries `[target_yaw_rad, target_depth_m, velocity]` (full layout in section 5).
+
+90 deg yaw step (1.5708 rad), with depth and velocity untouched:
+
+```bash
+rostopic pub -1 /cyclops/control_target std_msgs/Float32MultiArray \
+  "data: [1.5708, 0.0, 0.0]"
+```
+
+1 m depth step:
+
+```bash
+rostopic pub -1 /cyclops/control_target std_msgs/Float32MultiArray \
+  "data: [0.0, 1.0, 0.0]"
+```
+
+`-1` means publish once and exit; the controller stores the last received target, so you do not need a continuous publisher.
+
+### 4.4 Capture the deliverable JPG plots
+
+`rqt_plot` is good for live tuning but does not save publication-quality images well. For the submitted JPGs, record a bag and replot offline:
+
+```bash
+# In a separate terminal, before pressing the step:
+rosbag record -O step.bag /cyclops/RPYD /cyclops/control_target
+
+# Trigger the step, wait ~5 seconds, then Ctrl+C the rosbag.
+```
+
+Plot with a short Python script (matplotlib + the `rosbag` Python API):
+
+```python
+import rosbag, matplotlib.pyplot as plt
+
+t, yaw, depth = [], [], []
+with rosbag.Bag('step.bag') as bag:
+    t0 = None
+    for _, msg, ts in bag.read_messages(topics=['/cyclops/RPYD']):
+        if t0 is None:
+            t0 = ts.to_sec()
+        t.append(ts.to_sec() - t0)
+        yaw.append(msg.data[2])
+        depth.append(msg.data[3])
+
+plt.plot(t, yaw, label='yaw [rad]')        # or depth, depending on the test
+plt.xlabel('time [s]')
+plt.legend()
+plt.savefig('yaw_control_result.jpg', dpi=150)
+```
+
+Run the same script with `depth` swapped in (and `savefig` renamed) for the depth deliverable. Both files (`yaw_control_result.jpg`, `depth_control_result.jpg`) must end up inside your package folder before you zip the submission.
+
+---
+
+## 5. Spec quick-reference (read the PDF for binding language)
 
 ### Subscribed topics (`auv_controller_node`)
 
@@ -223,7 +328,7 @@ two surge-direction thrusters.
 
 ---
 
-## 5. Submission checklist
+## 6. Submission checklist
 
 - [ ] Source files in C++ or Python.
 - [ ] `package.xml` + `CMakeLists.txt` updated with package name + maintainer.
@@ -236,6 +341,6 @@ two surge-direction thrusters.
 
 ---
 
-## 6. Contact
+## 7. Contact
 
 For questions or clarifications: `luckkim123@postech.ac.kr`.
